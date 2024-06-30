@@ -11,11 +11,6 @@ const io = socketIo(server);
 let players = {};
 let stars = [];
 
-// Função para adicionar uma estrela
-function addStar(x, y) {
-    stars.push({ x, y });
-}
-
 // Configuração do servidor Express
 app.use(express.static('public'));
 
