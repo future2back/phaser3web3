@@ -193,7 +193,7 @@
             }
 
             // Inicializa o Socket.IO
-            socket = io('https://deep-grass-loud.on-fleek.app/');  // Substitua com o endereço do seu servidor Socket.IO
+            socket = io('https://deep-grass-loud.on-fleek.app/');  // Substitua com a URL pública do seu servidor Socket.IO no Fleek
 
             // Atualiza a posição dos jogadores conectados
             socket.on('updatePlayers', (players) => {
@@ -201,7 +201,6 @@
                     const { x, y, direction } = players[id];
                     // Atualiza a posição dos outros jogadores
                     if (id !== socket.id) {
-                        // Atualize a posição dos jogadores aqui
                         console.log(`Player ${id} moved to x:${x}, y:${y} facing ${direction}`);
                     }
                 }
@@ -209,9 +208,18 @@
 
             // Atualiza o estado do jogo
             socket.on('updateStars', (stars) => {
+                // Remove todas as estrelas existentes
+                this.physics.world.getChildren().forEach(child => {
+                    if (child.texture.key === 'star') {
+                        child.destroy();
+                    }
+                });
+
+                // Adiciona novas estrelas
                 stars.forEach(star => {
-                    // Atualize as estrelas no jogo
-                    console.log(`Star collected at x:${star.x}, y:${star.y}`);
+                    this.physics.add.sprite(star.x, star.y, 'star')
+                        .setBounceY(Phaser.Math.FloatBetween(0.4, 0.8))
+                        .setScale(0.5);  // Reduz o tamanho das estrelas para 50%
                 });
             });
         }
