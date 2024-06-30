@@ -1,19 +1,16 @@
 {
-  "name": "phaser-web3-game",
+  "name": "phaser-game",
   "version": "1.0.0",
-  "description": "Um jogo simples com Phaser 3 e Web3",
+  "description": "A simple Phaser 3 game with Web3 and Socket.IO",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.18.2",
-    "http": "^0.0.1-security",
     "socket.io": "^4.7.2"
   },
   "engines": {
     "node": ">=14.0.0"
-  },
-  "author": "Seu Nome",
-  "license": "MIT"
+  }
 }
