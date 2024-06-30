@@ -14,7 +14,7 @@
         #connectButton, #disconnectButton {
             position: absolute;
             top: 16px;
-            left: 16px;  /* Alinha o botão à esquerda */
+            left: 16px;
             background-color: #007bff;
             color: white;
             border: none;
@@ -169,15 +169,8 @@
                 }
             });
 
-            if (window.ethereum) {
-                web3 = new Web3(window.ethereum);
-                checkWalletConnected();
-            } else {
-                alert('Please install MetaMask or another Ethereum-compatible browser extension.');
-            }
-
-            // Certifique-se de que o script do Socket.IO está carregado antes de usá-lo
-            socket = io();  // Removendo o endereço para conectar ao servidor Socket.IO padrão
+            // Certifique-se de que o Socket.IO está carregado antes de usá-lo
+            socket = io();  // Conecta ao Socket.IO usando a URL padrão
 
             socket.on('updatePlayers', (players) => {
                 for (const id in players) {
@@ -193,6 +186,13 @@
                     console.log(`Star collected at x:${star.x}, y:${star.y}`);
                 });
             });
+
+            if (window.ethereum) {
+                web3 = new Web3(window.ethereum);
+                checkWalletConnected();
+            } else {
+                alert('Please install MetaMask or another Ethereum-compatible browser extension.');
+            }
         }
 
         async function connectWallet() {
