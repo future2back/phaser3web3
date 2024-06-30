@@ -63,7 +63,6 @@
         let socket;
 
         function preload() {
-            // Carregando a imagem do fundo, estrela, plataforma e player
             this.load.image('sky', 'https://labs.phaser.io/assets/skies/space3.png');
             this.load.image('star', 'https://labs.phaser.io/assets/sprites/star.png');
             this.load.image('ground', 'https://labs.phaser.io/assets/sprites/platform.png');
@@ -71,25 +70,19 @@
         }
 
         function create() {
-            // Adicionando o fundo
             this.add.image(400, 300, 'sky');
 
-            // Adicionando plataformas
             const platforms = this.physics.add.staticGroup();
             platforms.create(400, 568, 'ground').setScale(2).refreshBody();
             platforms.create(600, 400, 'ground');
             platforms.create(50, 250, 'ground');
             platforms.create(750, 220, 'ground');
 
-            // Adicionando o player
             player = this.physics.add.sprite(100, 450, 'dude');
             player.setBounce(0.2);
             player.setCollideWorldBounds(true);
-
-            // Adicionando física de colisão entre player e plataformas
             this.physics.add.collider(player, platforms);
 
-            // Adicionando estrelas
             const stars = this.physics.add.group({
                 key: 'star',
                 repeat: 11,
@@ -98,10 +91,9 @@
 
             stars.children.iterate(function (child) {
                 child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
-                child.setScale(0.5);  // Reduz o tamanho das estrelas para 50%
+                child.setScale(0.5);
             });
 
-            // Adicionando física de colisão entre estrelas e plataformas
             this.physics.add.collider(stars, platforms);
             this.physics.add.overlap(player, stars, collectStar, null, this);
 
@@ -112,7 +104,6 @@
                 socket.emit('collectStar', { x: star.x, y: star.y });
             }
 
-            // Adicionando animações para o player
             this.anims.create({
                 key: 'left',
                 frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
@@ -133,25 +124,21 @@
                 repeat: -1
             });
 
-            // Adicionando texto para o contador de estrelas
             scoreText = this.add.text(600, 16, 'Stars: 0', {
                 fontSize: '32px',
                 fill: '#fff'
             });
 
-            // Adicionando texto para o endereço da carteira
             walletText = this.add.text(170, 16, 'Wallet: Not Connected', {
                 fontSize: '32px',
                 fill: '#fff'
             });
 
-            // Adicionando um botão para conectar a carteira
             const connectButton = document.createElement('button');
             connectButton.id = 'connectButton';
             connectButton.innerText = 'Connect Wallet';
             document.body.appendChild(connectButton);
 
-            // Adicionando um botão para desconectar a carteira
             const disconnectButton = document.createElement('button');
             disconnectButton.id = 'disconnectButton';
             disconnectButton.innerText = 'Disconnect Wallet';
@@ -160,10 +147,8 @@
             connectButton.addEventListener('click', connectWallet);
             disconnectButton.addEventListener('click', disconnectWallet);
 
-            // Adicionando controles de teclado
             cursors = this.input.keyboard.createCursorKeys();
 
-            // Adicionando lógica de movimento do player
             this.physics.world.on('worldstep', () => {
                 if (cursors.left.isDown) {
                     player.setVelocityX(-160);
@@ -184,7 +169,6 @@
                 }
             });
 
-            // Inicializa o Web3
             if (window.ethereum) {
                 web3 = new Web3(window.ethereum);
                 checkWalletConnected();
@@ -192,56 +176,34 @@
                 alert('Please install MetaMask or another Ethereum-compatible browser extension.');
             }
 
-            // Inicializa o Socket.IO
-            socket = io('https://deep-grass-loud.on-fleek.app/');  // Substitua com a URL pública do seu servidor Socket.IO no Fleek
+            // Certifique-se de que o script do Socket.IO está carregado antes de usá-lo
+            socket = io();  // Removendo o endereço para conectar ao servidor Socket.IO padrão
 
-            // Atualiza a posição dos jogadores conectados
             socket.on('updatePlayers', (players) => {
                 for (const id in players) {
                     const { x, y, direction } = players[id];
-                    // Atualiza a posição dos outros jogadores
                     if (id !== socket.id) {
                         console.log(`Player ${id} moved to x:${x}, y:${y} facing ${direction}`);
                     }
                 }
             });
 
-            // Atualiza o estado do jogo
             socket.on('updateStars', (stars) => {
-                // Remove todas as estrelas existentes
-                this.physics.world.getChildren().forEach(child => {
-                    if (child.texture.key === 'star') {
-                        child.destroy();
-                    }
-                });
-
-                // Adiciona novas estrelas
                 stars.forEach(star => {
-                    this.physics.add.sprite(star.x, star.y, 'star')
-                        .setBounceY(Phaser.Math.FloatBetween(0.4, 0.8))
-                        .setScale(0.5);  // Reduz o tamanho das estrelas para 50%
+                    console.log(`Star collected at x:${star.x}, y:${star.y}`);
                 });
             });
         }
 
         async function connectWallet() {
             try {
-                // Solicita ao usuário para conectar a carteira
                 await window.ethereum.request({ method: 'eth_requestAccounts' });
-
-                // Obtém o endereço da primeira conta
                 accounts = await web3.eth.getAccounts();
                 const account = accounts[0];
-
-                // Exibe o endereço da carteira
                 const shortAccount = `${account.slice(0, 4)}...${account.slice(-4)}`;
                 walletText.setText(`Wallet: ${shortAccount}`);
-
-                // Atualiza a visibilidade dos botões
                 document.getElementById('connectButton').style.display = 'none';
                 document.getElementById('disconnectButton').style.display = 'block';
-
-                // Adiciona um ouvinte para atualizações de contas
                 window.ethereum.on('accountsChanged', checkWalletConnected);
             } catch (error) {
                 console.error('User denied account access or error occurred', error);
@@ -249,11 +211,8 @@
         }
 
         async function disconnectWallet() {
-            // Limpa a conta e atualiza o texto
             accounts = [];
             walletText.setText('Wallet: Not Connected');
-
-            // Atualiza a visibilidade dos botões
             document.getElementById('connectButton').style.display = 'block';
             document.getElementById('disconnectButton').style.display = 'none';
         }
